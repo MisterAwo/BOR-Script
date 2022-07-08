@@ -1,0 +1,53 @@
+
+/*BOR_SBC_Routed*/
+
+with Routed_BOR (Ref_#,Routed,Ship_Method, Tracking, Invoiced, Clerk, Printer, SBC_Created, SBC_Billed_Year, SBC_Billed_Month, SBC_Billed_day, SBC_Shipped, SBC_Data_Refreshed)as (
+select
+    DISTINCT s.order_number ,
+    case
+when 
+	s.order_comment_line like '%track%' then 'Yes' else 'No' end,
+	s.shipping_method,
+	s.order_comment_line,
+	case WHEN 
+	s.transaction_code ='I' then 'Yes' else 'No' end,
+	s.clerk_code,
+	s.printer_number,
+	s.order_date,
+	substring (s.billing_date,1,4), 
+	substring (s.billing_date,5,2),
+	substring (s.billing_date,7,2),
+
+	s.ship_date,
+	format (s.refresh_date, 'MMM yy dd')
+	
+from
+    SBC_Historical.dbo.SBC_TOED_OrderEntryDetail_Historical  S
+	where s.shipping_method = 'BOR'
+
+group by
+    s.order_number,
+	s.order_comment_line,
+	s.shipping_method,
+	transaction_code,
+	s.clerk_code,
+	s.printer_number,
+	s.order_date,
+	s.billing_date,
+	s.ship_date,
+	s.refresh_date),
+	
+	Closed_BOR (Ref_#,PO_#,Account,Numina_Created,Numina_Ship)as (
+	select distinct o.orderId ,
+	o.poNumber ,
+	o.billingName,
+	format(o.createStamp, 'MMM yy') ,
+	format (o.shipStamp, 'MMM yy') 
+
+	from NuminaData_BaseTables.dbo.BP_Numina_psOrders_raw O
+	WHERE O.scac = 'BOR')
+
+select distinct R.Ref_#, C.PO_#,C.Account,R.Routed,C.Numina_Created, R.SBC_Created,  R.SBC_Billed_Year, R.SBC_Billed_Month, R.SBC_Billed_Day, C.Numina_Ship,  R.SBC_Shipped,   R.Ship_Method,R.Tracking,R.Invoiced,R.Clerk, R.Printer, R.SBC_Data_Refreshed
+from Routed_BOR R
+join Closed_BOR C on R.Ref_# = C.Ref_#
+where R.Routed = 'Yes'
