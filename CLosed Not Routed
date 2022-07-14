@@ -1,0 +1,6 @@
+/* BOR_Closed_Not_Routed */
+
+select c.Ref_#,c.Account,c.[Account #],c.Destination,c.[Numina Ship Month], c.[Carton #] --c.Ref_# initially only column (7 min runtime)
+from Engineering_DB.dbo.BOR_Numina_Closed c
+where c.Ref_# not in (select r.Ref_#
+from Engineering_DB.dbo.[BOR _SBC_Routed] r)
