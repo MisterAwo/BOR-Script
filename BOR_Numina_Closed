@@ -2,12 +2,15 @@
 
 select distinct o.orderId 'Ref_#',
 	o.poNumber 'PO_#',
+	o.accountNum 'Account #',
 	o.billingName 'Account',
+	o.zip + ' ' + o.city + ' ' + o.[state] 'Destination',
+	o.numCartons 'Carton #',
 	format(o.createStamp, 'yyyy') 'Numina Create Year',
-	format(o.createStamp, 'MM') 'Numina Create Month',
+	format(o.createStamp, 'MMM') 'Numina Create Month',
 	format(o.createStamp, 'dd') 'Numina Create Day',
 	format (o.shipStamp, 'yyyy') 'Numina Ship Year',
-	format (o.shipStamp, 'MM') 'Numina Ship Month',
+	format (o.shipStamp, 'MMM') 'Numina Ship Month',
 	format (o.shipStamp, 'dd') 'Numina Ship Day'
 
 	from NuminaData_BaseTables.dbo.BP_Numina_psOrders_raw O
